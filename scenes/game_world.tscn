@@ -1,0 +1,118 @@
+[gd_scene load_steps=8 format=3 uid="uid://ccfr8ds4t1jwk"]
+
+[ext_resource type="Script" uid="uid://bccwjh81571ec" path="res://scenes/game_world.gd" id="1_gwscr"]
+[ext_resource type="Texture2D" uid="uid://bx7xqidbnjgho" path="res://assets/grass_2.png" id="2_47u71"]
+[ext_resource type="Texture2D" uid="uid://bbsfb18pu0ecv" path="res://assets/sand_2.png" id="3_ywgp6"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ywgp6"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0vfqx"]
+size = Vector2(1024, 256)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ywgp6"]
+size = Vector2(20, 1220)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wbbl4"]
+size = Vector2(1310, 20)
+
+[node name="GameWorld" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_gwscr")
+
+[node name="PhaseTimer" type="Timer" parent="."]
+wait_time = 120.0
+one_shot = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = -565.0
+offset_top = -204.0
+offset_right = -365.0
+offset_bottom = -104.0
+
+[node name="TimerLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Time: 120"
+
+[node name="Grass" type="TextureRect" parent="."]
+texture_repeat = 2
+layout_mode = 0
+offset_left = -1280.0
+offset_top = -864.0
+offset_right = 1280.0
+offset_bottom = 1440.0
+texture = ExtResource("2_47u71")
+stretch_mode = 1
+
+[node name="Field" type="TextureRect" parent="."]
+texture_repeat = 2
+layout_mode = 0
+offset_left = -512.0
+offset_top = 128.0
+offset_right = 512.0
+offset_bottom = 768.0
+texture = ExtResource("3_ywgp6")
+stretch_mode = 1
+
+[node name="Barn" type="StaticBody2D" parent="."]
+physics_material_override = SubResource("PhysicsMaterial_ywgp6")
+
+[node name="Walls" type="ColorRect" parent="Barn"]
+offset_left = -512.0
+offset_top = -324.0
+offset_right = 512.0
+offset_bottom = -68.0
+color = Color(1, 0.24458632, 0.1938524, 1)
+
+[node name="Door" type="ColorRect" parent="Barn"]
+offset_left = -64.0
+offset_top = -128.0
+offset_right = 64.0
+color = Color(0.072842695, 0.072842605, 0.072842635, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Barn"]
+position = Vector2(0, -196)
+shape = SubResource("RectangleShape2D_0vfqx")
+
+[node name="SpawnPoint" type="Marker2D" parent="Barn"]
+position = Vector2(0, 32)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="FenceLine" type="Line2D" parent="."]
+position = Vector2(-645, 286)
+points = PackedVector2Array(0, -620, 0, 620, 1290, 620, 1290, -620, -5, -620)
+default_color = Color(0, 0, 0, 1)
+
+[node name="FenceLeft" type="StaticBody2D" parent="."]
+
+[node name="LeftCollision" type="CollisionShape2D" parent="FenceLeft"]
+position = Vector2(-645, 286)
+shape = SubResource("RectangleShape2D_ywgp6")
+
+[node name="FenceBottom" type="StaticBody2D" parent="."]
+position = Vector2(-645, 286)
+
+[node name="BottomCollision" type="CollisionShape2D" parent="FenceBottom"]
+position = Vector2(645, 620)
+shape = SubResource("RectangleShape2D_wbbl4")
+
+[node name="FenceTop" type="StaticBody2D" parent="."]
+position = Vector2(-645, 286)
+
+[node name="TopCollision" type="CollisionShape2D" parent="FenceTop"]
+position = Vector2(645, -620)
+shape = SubResource("RectangleShape2D_wbbl4")
+
+[node name="FenceRight" type="StaticBody2D" parent="."]
+
+[node name="RightCollision" type="CollisionShape2D" parent="FenceRight"]
+position = Vector2(645, 286)
+shape = SubResource("RectangleShape2D_ywgp6")
+
+[connection signal="timeout" from="PhaseTimer" to="." method="_on_phase_timer_timeout"]
