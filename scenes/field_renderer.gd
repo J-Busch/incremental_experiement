@@ -1,0 +1,27 @@
+extends Node2D
+
+const BOULDER_SCENE := preload("res://scenes/objects/boulder.tscn")
+
+func _ready() -> void:
+	FieldManager.cell_changed.connect(_on_cell_changed)
+	_build_all()
+
+func _build_all() -> void:
+	for y: int in FieldManager.GRID_HEIGHT:
+		for x: int in FieldManager.GRID_WIDTH:
+			var cell := FieldManager.get_cell(x, y)
+			if cell["type"] != &"empty" and cell["owner"] == Vector2i(x, y):
+				_spawn_visual(x, y, cell)
+
+func _spawn_visual(x: int, y: int, cell: Dictionary) -> void:
+	match cell["type"]:
+		&"boulder": _spawn_boulder(x, y, cell)
+
+func _spawn_boulder(x: int, y: int, cell: Dictionary) -> void:
+	var boulder := BOULDER_SCENE.instantiate()
+	boulder.position = Vector2(x * FieldManager.TILE_SIZE, y * FieldManager.TILE_SIZE)
+	add_child(boulder)
+	boulder.setup(cell["size"])
+
+func _on_cell_changed(_coords: Vector2i) -> void:
+	pass
