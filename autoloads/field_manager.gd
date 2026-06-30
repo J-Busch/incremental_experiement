@@ -72,15 +72,18 @@ func _stamp_boulder(x: int, y: int, size: Vector2i) -> void:
 				"extras": {"health": max_health, "max_health": max_health} if is_origin else {}
 			}
 
-func damage_boulder(x: int, y: int) -> void:
+func damage_boulder(x: int, y: int) -> int:
 	var cell := get_cell(x, y)
 	var origin: Vector2i = cell["owner"]
 	var origin_cell := get_cell(origin.x, origin.y)
+	if origin_cell["extras"]["health"] <= 0:
+		return 0
 	origin_cell["extras"]["health"] -= 1
 	origin_cell["progress"] = float(origin_cell["extras"]["health"]) / float(origin_cell["extras"]["max_health"])
 	set_cell(origin.x, origin.y, origin_cell)
 	if origin_cell["extras"]["health"] <= 0:
 		_destroy_boulder(origin.x, origin.y, origin_cell["size"])
+	return 1
 
 func _destroy_boulder(ox: int, oy: int, size: Vector2i) -> void:
 	for dy: int in size.y:

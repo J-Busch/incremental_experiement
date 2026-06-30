@@ -28,19 +28,8 @@ mouse_filter = 2
 script = ExtResource("1_gwscr")
 
 [node name="PhaseTimer" type="Timer" parent="."]
-wait_time = 120.0
+wait_time = 15.0
 one_shot = true
-
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
-layout_mode = 0
-offset_left = -565.0
-offset_top = -204.0
-offset_right = -365.0
-offset_bottom = -104.0
-
-[node name="TimerLabel" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-text = "Time: 120"
 
 [node name="Grass" type="TextureRect" parent="."]
 texture_repeat = 2
@@ -124,5 +113,15 @@ script = ExtResource("2_frndr")
 
 [node name="InventoryMenu" parent="Camera2D" instance=ExtResource("5_wbbl4")]
 visible = false
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Camera2D"]
+offset_left = -565.0
+offset_top = -204.0
+offset_right = -365.0
+offset_bottom = -104.0
+
+[node name="TimerLabel" type="Label" parent="Camera2D/VBoxContainer"]
+layout_mode = 2
+text = "Time: 120"
 
 [connection signal="timeout" from="PhaseTimer" to="." method="_on_phase_timer_timeout"]

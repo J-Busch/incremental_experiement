@@ -23,7 +23,7 @@ func _build_all() -> void:
 func _spawn_visual(x: int, y: int, cell: Dictionary) -> void:
 	match cell["type"]:
 		&"boulder": _spawn_boulder(x, y, cell)
-		&"sapling": _spawn_sapling(x, y)
+		&"sapling": _spawn_sapling(x, y, cell)
 
 func _spawn_boulder(x: int, y: int, cell: Dictionary) -> void:
 	var boulder := BOULDER_SCENE.instantiate()
@@ -32,12 +32,14 @@ func _spawn_boulder(x: int, y: int, cell: Dictionary) -> void:
 	boulder.setup(Vector2i(x, y), cell["size"])
 	_boulder_nodes[Vector2i(x, y)] = boulder
 
-func _spawn_sapling(x: int, y: int) -> void:
+func _spawn_sapling(x: int, y: int, cell: Dictionary) -> void:
 	var sapling := SAPLING_SCENE.instantiate()
 	sapling.position = Vector2(x * FieldManager.TILE_SIZE, y * FieldManager.TILE_SIZE)
 	add_child(sapling)
 	sapling.setup(Vector2i(x, y))
 	_sapling_nodes[Vector2i(x, y)] = sapling
+	if cell["state"] != &"seedling":
+		sapling.refresh(cell)
 
 func _on_cell_changed(coords: Vector2i) -> void:
 	var cell := FieldManager.get_cell(coords.x, coords.y)
@@ -62,6 +64,7 @@ func _on_cell_changed(coords: Vector2i) -> void:
 
 	if cell["type"] != &"empty" and cell["owner"] == coords:
 		_spawn_visual(coords.x, coords.y, cell)
+
 
 func enter_placement_mode(item: StringName) -> void:
 	_placement_item = item

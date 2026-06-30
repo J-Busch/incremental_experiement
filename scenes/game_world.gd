@@ -14,7 +14,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	var mins := int($PhaseTimer.time_left / 60.0)
 	var secs := int($PhaseTimer.time_left) % 60
-	$VBoxContainer/TimerLabel.text = "%2d : %02d" % [mins, secs]
+	$Camera2D/VBoxContainer/TimerLabel.text = "%2d : %02d" % [mins, secs]
 
 	var direction := Vector2.ZERO
 	if Input.is_action_pressed("RIGHT"):

@@ -54,7 +54,7 @@ func refresh(cell: Dictionary) -> void:
 
 func _on_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event.is_action_pressed(&"LEFT_CLICK"):
-		FieldManager.damage_boulder(grid_coords.x, grid_coords.y)
+		GameManager.currency += FieldManager.damage_boulder(grid_coords.x, grid_coords.y)
 
 func _make_placeholder(size_px: Vector2) -> ImageTexture:
 	var img := Image.create(int(size_px.x), int(size_px.y), false, Image.FORMAT_RGBA8)
