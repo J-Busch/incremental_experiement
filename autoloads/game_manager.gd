@@ -57,6 +57,7 @@ const VIP_TIERS: Array = [
 
 var upgrade_levels: Dictionary = {}
 var total_spent: int = 0
+var npc_count: int = 1
 
 const SAVE_PATH := "user://game.json"
 
@@ -73,6 +74,7 @@ func reset() -> void:
 	inventory = {&"sapling": 5}
 	upgrade_levels = {}
 	total_spent = 0
+	npc_count = 1
 	FieldManager.generate()
 	save_state()
 	FieldManager.save_grid()
@@ -177,6 +179,7 @@ func save_state() -> void:
 		"inventory": inv,
 		"upgrade_levels": upg,
 		"total_spent": total_spent,
+		"npc_count": npc_count,
 	}))
 
 func load_state() -> void:
@@ -190,6 +193,7 @@ func load_state() -> void:
 	currency = int(parsed.get("currency", currency))
 	day = int(parsed.get("day", day))
 	total_spent = int(parsed.get("total_spent", total_spent))
+	npc_count = int(parsed.get("npc_count", npc_count))
 	var inv = parsed.get("inventory", null)
 	if inv != null:
 		inventory = {}

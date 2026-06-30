@@ -13,6 +13,7 @@ const TEXTURES: Dictionary = {
 
 @onready var visual: Sprite2D = $Visual
 @onready var collision_shape: CollisionShape2D = $Area2D/CollisionShape2D
+@onready var static_collision: CollisionShape2D = $StaticBody2D/CollisionShape2D
 @onready var progress_bar: ProgressBar = $ProgressBar
 @onready var area: Area2D = $Area2D
 
@@ -42,6 +43,8 @@ func setup(coords: Vector2i, cell_size: Vector2i) -> void:
 	shape.size = pixel_size
 	collision_shape.shape = shape
 	collision_shape.position = pixel_size / 2.0
+	static_collision.shape = shape
+	static_collision.position = pixel_size / 2.0
 
 	progress_bar.offset_left = 0.0
 	progress_bar.offset_right = pixel_size.x

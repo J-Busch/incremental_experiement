@@ -1,5 +1,7 @@
 extends Node2D
 
+signal harvest_requested(coords: Vector2i, at_pos: Vector2)
+
 @onready var visual: Sprite2D = $Visual
 @onready var progress_bar: ProgressBar = $ProgressBar
 @onready var area: Area2D = $Area2D
@@ -10,6 +12,7 @@ var grid_coords: Vector2i
 # Area2D.input_event only fires on press/release, not continuous hold.
 # _is_held bridges that gap so _process can water every frame while held.
 var _is_held: bool = false
+var _last_progress: float = 0.0
 
 var _hide_timer: Timer
 
@@ -48,20 +51,27 @@ func refresh(cell: Dictionary) -> void:
 		set_process(false)
 
 func _process(delta: float) -> void:
-	if not _is_held:
-		return
-	if not Input.is_action_pressed(&"LEFT_CLICK"):
-		_is_held = false
-		return
-	FieldManager.water_sapling(grid_coords.x, grid_coords.y, delta)
-	var cell := FieldManager.get_cell(grid_coords.x, grid_coords.y)
-	progress_bar.value = cell["progress"] * 100.0
-	progress_bar.show()
-	_hide_timer.start()
+	if _is_held:
+		if not Input.is_action_pressed(&"LEFT_CLICK"):
+			_is_held = false
+		else:
+			FieldManager.water_sapling(grid_coords.x, grid_coords.y, delta)
+
+	var current_progress: float = FieldManager.get_cell(grid_coords.x, grid_coords.y)["progress"]
+	if current_progress != _last_progress:
+		_last_progress = current_progress
+		progress_bar.value = current_progress * 100.0
+		progress_bar.show()
+		_hide_timer.start()
 
 func _on_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event.is_action_pressed(&"LEFT_CLICK"):
-		_is_held = true
+		var cell := FieldManager.get_cell(grid_coords.x, grid_coords.y)
+		if cell["state"] == &"mature":
+			var center := global_position + Vector2(FieldManager.TILE_SIZE * 0.5, FieldManager.TILE_SIZE * 0.5)
+			harvest_requested.emit(grid_coords, center)
+		else:
+			_is_held = true
 	elif event.is_action_released(&"LEFT_CLICK"):
 		_is_held = false
 

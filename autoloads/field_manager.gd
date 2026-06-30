@@ -33,8 +33,11 @@ const SAVE_PATH := "user://field.json"
 #   progress:   float       — 0.0–1.0, drives progress bars
 #   owner:      Vector2i    — origin cell coords; non-origin cells point back here
 #   size:       Vector2i    — footprint size, only meaningful on the origin cell
-#   claimed_by: null        — reserved for NPC task assignment (step 9)
+#   claimed_by: Array[int]  — NPC IDs working this tile; max MAX_WORKERS_PER_TILE
 #   extras:     Dictionary  — type-specific data (boulder: health; sapling: maturity)
+
+const MAX_WORKERS_PER_TILE: int = 5
+const CARDINAL_OFFSETS: Array[Vector2i] = [Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1), Vector2i(0, 1)]
 var grid_data: Array = []
 
 signal cell_changed(coords: Vector2i)
@@ -87,7 +90,7 @@ func _stamp_boulder(x: int, y: int, size: Vector2i) -> void:
 				"progress": 1.0,
 				"owner": origin,
 				"size": size if is_origin else Vector2i(1, 1),
-				"claimed_by": null,
+				"claimed_by": [],
 				"extras": {"health": max_health, "max_health": max_health} if is_origin else {}
 			}
 
@@ -112,7 +115,10 @@ func _destroy_boulder(ox: int, oy: int, size: Vector2i) -> void:
 	for dy: int in size.y:
 		for dx: int in size.x:
 			grid_data[(oy + dy) * GRID_WIDTH + (ox + dx)] = _make_empty_cell(Vector2i(ox + dx, oy + dy))
-	cell_changed.emit(Vector2i(ox, oy))
+	# Emit for every tile so NPCs assigned to non-origin tiles also hear the signal.
+	for dy: int in size.y:
+		for dx: int in size.x:
+			cell_changed.emit(Vector2i(ox + dx, oy + dy))
 
 # ── Sapling actions ──────────────────────────────────────────────────────────
 
@@ -154,7 +160,7 @@ func place_item(x: int, y: int, item: StringName) -> bool:
 				"progress": 0.0,
 				"owner": origin,
 				"size": size if is_origin else Vector2i(1, 1),
-				"claimed_by": null,
+				"claimed_by": [],
 				"extras": {"maturity": 0.0, "max_maturity": SAPLING_MAX_MATURITY} if is_origin else {}
 			})
 	return true
@@ -178,9 +184,52 @@ func _make_empty_cell(coords: Vector2i) -> Dictionary:
 		"progress": 0.0,
 		"owner": coords,
 		"size": Vector2i(1, 1),
-		"claimed_by": null,
+		"claimed_by": [],
 		"extras": {}
 	}
+
+# ── NPC helpers ──────────────────────────────────────────────────────────────
+
+# Returns all tile coords available for NPC work: boulders and seedling saplings
+# with fewer than MAX_WORKERS_PER_TILE current claimants.
+func get_tasks() -> Array:
+	var result: Array = []
+	for y: int in GRID_HEIGHT:
+		for x: int in GRID_WIDTH:
+			var cell := get_cell(x, y)
+			if cell["type"] == &"empty":
+				continue
+			if cell["claimed_by"].size() >= MAX_WORKERS_PER_TILE:
+				continue
+			var is_workable: bool = (
+				(cell["type"] == &"boulder" and cell["state"] == &"intact")
+				or (cell["type"] == &"sapling" and cell["state"] == &"seedling")
+			)
+			if is_workable and _is_exterior_tile(x, y):
+				result.append(Vector2i(x, y))
+	return result
+
+# A tile is exterior if at least one cardinal neighbor is empty or out of bounds,
+# meaning an NPC can reach it from that direction without crossing the physics body.
+func _is_exterior_tile(x: int, y: int) -> bool:
+	for offset: Vector2i in CARDINAL_OFFSETS:
+		var nx := x + offset.x
+		var ny := y + offset.y
+		if not is_in_bounds(nx, ny) or get_cell(nx, ny)["type"] == &"empty":
+			return true
+	return false
+
+func has_boulders() -> bool:
+	for cell: Dictionary in grid_data:
+		if cell["type"] == &"boulder":
+			return true
+	return false
+
+func harvest_sapling(x: int, y: int) -> void:
+	var cell := get_cell(x, y)
+	if cell["type"] != &"sapling" or cell["state"] != &"mature":
+		return
+	set_cell(x, y, _make_empty_cell(Vector2i(x, y)))
 
 # ── Save / Load ──────────────────────────────────────────────────────────────
 
@@ -197,7 +246,7 @@ func _serialize_grid() -> Array:
 			"progress": cell["progress"],
 			"owner": "%d,%d" % [cell["owner"].x, cell["owner"].y],
 			"size": "%d,%d" % [cell["size"].x, cell["size"].y],
-			"claimed_by": null,
+			"claimed_by": [],
 			"extras": cell["extras"].duplicate()
 		})
 	return result
@@ -217,7 +266,7 @@ func _load_grid() -> void:
 			"progress": float(d["progress"]),
 			"owner": _str_to_vec2i(d["owner"]),
 			"size": _str_to_vec2i(d["size"]),
-			"claimed_by": null,
+			"claimed_by": [],
 			"extras": d["extras"].duplicate()
 		}
 

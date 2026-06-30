@@ -1,10 +1,11 @@
-[gd_scene load_steps=10 format=3 uid="uid://ccfr8ds4t1jwk"]
+[gd_scene load_steps=11 format=3 uid="uid://ccfr8ds4t1jwk"]
 
 [ext_resource type="Script" uid="uid://bccwjh81571ec" path="res://scenes/game_world.gd" id="1_gwscr"]
 [ext_resource type="Texture2D" uid="uid://bx7xqidbnjgho" path="res://assets/grass_2.png" id="2_47u71"]
 [ext_resource type="Script" uid="uid://dnihjfkhan7j6" path="res://scenes/field_renderer.gd" id="2_frndr"]
 [ext_resource type="Texture2D" uid="uid://bbsfb18pu0ecv" path="res://assets/sand_2.png" id="3_ywgp6"]
 [ext_resource type="PackedScene" uid="uid://lphblwk2cij4" path="res://scenes/ui/inventory_menu.tscn" id="5_wbbl4"]
+[ext_resource type="PackedScene" path="res://scenes/ui/win_screen.tscn" id="6_winscn"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ywgp6"]
 
@@ -108,6 +109,10 @@ shape = SubResource("RectangleShape2D_ywgp6")
 [node name="FieldRenderer" type="Node2D" parent="."]
 position = Vector2(-512, 128)
 script = ExtResource("2_frndr")
+
+[node name="WinScreen" parent="." instance=ExtResource("6_winscn")]
+
+[node name="NPCLayer" type="Node2D" parent="."]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 

@@ -1,5 +1,7 @@
 extends Node2D
 
+signal sapling_harvested(coords: Vector2i, at_pos: Vector2)
+
 const BOULDER_SCENE := preload("res://scenes/objects/boulder.tscn")
 const SAPLING_SCENE := preload("res://scenes/objects/sapling.tscn")
 
@@ -41,6 +43,7 @@ func _spawn_sapling(x: int, y: int, cell: Dictionary) -> void:
 	sapling.position = Vector2(x * FieldManager.TILE_SIZE, y * FieldManager.TILE_SIZE)
 	add_child(sapling)
 	sapling.setup(Vector2i(x, y))
+	sapling.harvest_requested.connect(func(coords, at_pos): sapling_harvested.emit(coords, at_pos))
 	_visual_nodes[Vector2i(x, y)] = sapling
 	if cell["state"] != &"seedling":
 		sapling.refresh(cell)
