@@ -1,5 +1,7 @@
 extends Node2D
 
+# Maps boulder sizes to real Sprite2D textures.
+# All values are null until real art is added — _make_placeholder fills in at runtime.
 const TEXTURES: Dictionary = {
 	Vector2i(1, 1): null,
 	Vector2i(2, 1): null,
@@ -32,7 +34,6 @@ func setup(coords: Vector2i, cell_size: Vector2i) -> void:
 		cell_size.x * FieldManager.TILE_SIZE,
 		cell_size.y * FieldManager.TILE_SIZE
 	)
-
 	var tex = TEXTURES.get(cell_size)
 	visual.texture = tex if tex != null else _make_placeholder(pixel_size)
 	visual.position = pixel_size / 2.0

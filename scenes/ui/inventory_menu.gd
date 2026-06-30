@@ -1,10 +1,13 @@
 extends Panel
 
+const SELECTED_COLOR := Color(0.6, 1.0, 0.6)
+
 var selected_item: StringName = &""
 
 @onready var item_list: VBoxContainer = $VBoxContainer/ItemList
 
 func refresh() -> void:
+	# Clear selection on each open so a stale pick can't carry over into placement.
 	selected_item = &""
 	for child in item_list.get_children():
 		child.queue_free()
@@ -45,4 +48,4 @@ func _on_row_input(event: InputEvent, item_name: StringName, row: PanelContainer
 		selected_item = item_name
 		for child in item_list.get_children():
 			child.modulate = Color.WHITE
-		row.modulate = Color(0.6, 1.0, 0.6)
+		row.modulate = SELECTED_COLOR

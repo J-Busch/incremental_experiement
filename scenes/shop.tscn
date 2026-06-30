@@ -12,11 +12,33 @@ script = ExtResource("1_shscr")
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 offset_left = 20.0
 offset_top = 20.0
-offset_right = 220.0
-offset_bottom = 120.0
+offset_right = 620.0
+offset_bottom = 800.0
+
+[node name="DayLabel" type="Label" parent="VBoxContainer"]
+text = "Day 1"
 
 [node name="CurrencyLabel" type="Label" parent="VBoxContainer"]
-text = "Currency: 0"
+text = "Shards: 0"
+
+[node name="VIPLabel" type="Label" parent="VBoxContainer"]
+text = "Total Spent: 0 shards"
+
+[node name="HSep1" type="HSeparator" parent="VBoxContainer"]
+
+[node name="ItemsHeader" type="Label" parent="VBoxContainer"]
+text = "Items"
+
+[node name="ItemList" type="VBoxContainer" parent="VBoxContainer"]
+
+[node name="HSep2" type="HSeparator" parent="VBoxContainer"]
+
+[node name="UpgradesHeader" type="Label" parent="VBoxContainer"]
+text = "Upgrades"
+
+[node name="UpgradeList" type="VBoxContainer" parent="VBoxContainer"]
+
+[node name="HSep3" type="HSeparator" parent="VBoxContainer"]
 
 [node name="ProceedButton" type="Button" parent="VBoxContainer"]
 text = "Proceed"

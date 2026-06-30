@@ -6,7 +6,11 @@ extends Node2D
 @onready var collision_shape: CollisionShape2D = $Area2D/CollisionShape2D
 
 var grid_coords: Vector2i
+
+# Area2D.input_event only fires on press/release, not continuous hold.
+# _is_held bridges that gap so _process can water every frame while held.
 var _is_held: bool = false
+
 var _hide_timer: Timer
 
 func _ready() -> void:
@@ -40,6 +44,7 @@ func refresh(cell: Dictionary) -> void:
 		visual.texture = _make_mature_placeholder()
 		progress_bar.hide()
 		_hide_timer.stop()
+		# Disable _process once mature — continuous watering updates are no longer needed.
 		set_process(false)
 
 func _process(delta: float) -> void:

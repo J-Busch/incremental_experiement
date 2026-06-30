@@ -3,8 +3,10 @@ extends Node2D
 const BOULDER_SCENE := preload("res://scenes/objects/boulder.tscn")
 const SAPLING_SCENE := preload("res://scenes/objects/sapling.tscn")
 
-var _boulder_nodes: Dictionary = {}
-var _sapling_nodes: Dictionary = {}
+# Maps origin grid coords (Vector2i) to their visual Node2D instance.
+# Only origin cells have entries — non-origin cells of multi-tile objects do not.
+var _visual_nodes: Dictionary = {}
+
 var _placement_item: StringName = &""
 var _hover_cell: Vector2i = Vector2i(-1, -1)
 var _hover_valid: bool = false
@@ -12,6 +14,8 @@ var _hover_valid: bool = false
 func _ready() -> void:
 	FieldManager.cell_changed.connect(_on_cell_changed)
 	_build_all()
+
+# ── Build ────────────────────────────────────────────────────────────────────
 
 func _build_all() -> void:
 	for y: int in FieldManager.GRID_HEIGHT:
@@ -30,34 +34,27 @@ func _spawn_boulder(x: int, y: int, cell: Dictionary) -> void:
 	boulder.position = Vector2(x * FieldManager.TILE_SIZE, y * FieldManager.TILE_SIZE)
 	add_child(boulder)
 	boulder.setup(Vector2i(x, y), cell["size"])
-	_boulder_nodes[Vector2i(x, y)] = boulder
+	_visual_nodes[Vector2i(x, y)] = boulder
 
 func _spawn_sapling(x: int, y: int, cell: Dictionary) -> void:
 	var sapling := SAPLING_SCENE.instantiate()
 	sapling.position = Vector2(x * FieldManager.TILE_SIZE, y * FieldManager.TILE_SIZE)
 	add_child(sapling)
 	sapling.setup(Vector2i(x, y))
-	_sapling_nodes[Vector2i(x, y)] = sapling
+	_visual_nodes[Vector2i(x, y)] = sapling
 	if cell["state"] != &"seedling":
 		sapling.refresh(cell)
+
+# ── Cell change handler ──────────────────────────────────────────────────────
 
 func _on_cell_changed(coords: Vector2i) -> void:
 	var cell := FieldManager.get_cell(coords.x, coords.y)
 
-	if _boulder_nodes.has(coords):
-		var node: Node2D = _boulder_nodes[coords]
+	if _visual_nodes.has(coords):
+		var node: Node2D = _visual_nodes[coords]
 		if cell["type"] == &"empty":
 			node.queue_free()
-			_boulder_nodes.erase(coords)
-		else:
-			node.refresh(cell)
-		return
-
-	if _sapling_nodes.has(coords):
-		var node: Node2D = _sapling_nodes[coords]
-		if cell["type"] == &"empty":
-			node.queue_free()
-			_sapling_nodes.erase(coords)
+			_visual_nodes.erase(coords)
 		else:
 			node.refresh(cell)
 		return
@@ -65,6 +62,7 @@ func _on_cell_changed(coords: Vector2i) -> void:
 	if cell["type"] != &"empty" and cell["owner"] == coords:
 		_spawn_visual(coords.x, coords.y, cell)
 
+# ── Placement mode ───────────────────────────────────────────────────────────
 
 func enter_placement_mode(item: StringName) -> void:
 	_placement_item = item
