@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://lphblwk2cij4"]
+
+[ext_resource type="Script" uid="uid://dax65nyh2jge" path="res://scenes/ui/inventory_menu.gd" id="1_xmty8"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xmty8"]
+bg_color = Color(0.1, 0.1, 0.1, 0.90588236)
+
+[node name="InventoryMenu" type="Panel"]
+offset_right = 186.0
+offset_bottom = 109.0
+theme_override_styles/panel = SubResource("StyleBoxFlat_xmty8")
+script = ExtResource("1_xmty8")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Inventory"
+horizontal_alignment = 1
+
+[node name="ItemList" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+alignment = 1

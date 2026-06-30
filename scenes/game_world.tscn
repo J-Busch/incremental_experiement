@@ -1,9 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://ccfr8ds4t1jwk"]
+[gd_scene load_steps=10 format=3 uid="uid://ccfr8ds4t1jwk"]
 
 [ext_resource type="Script" uid="uid://bccwjh81571ec" path="res://scenes/game_world.gd" id="1_gwscr"]
 [ext_resource type="Texture2D" uid="uid://bx7xqidbnjgho" path="res://assets/grass_2.png" id="2_47u71"]
 [ext_resource type="Script" uid="uid://dnihjfkhan7j6" path="res://scenes/field_renderer.gd" id="2_frndr"]
 [ext_resource type="Texture2D" uid="uid://bbsfb18pu0ecv" path="res://assets/sand_2.png" id="3_ywgp6"]
+[ext_resource type="PackedScene" uid="uid://lphblwk2cij4" path="res://scenes/ui/inventory_menu.tscn" id="5_wbbl4"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ywgp6"]
 
@@ -84,8 +85,6 @@ shape = SubResource("RectangleShape2D_0vfqx")
 [node name="SpawnPoint" type="Marker2D" parent="Barn"]
 position = Vector2(0, 32)
 
-[node name="Camera2D" type="Camera2D" parent="."]
-
 [node name="FenceLine" type="Line2D" parent="."]
 position = Vector2(-645, 286)
 points = PackedVector2Array(0, -620, 0, 620, 1290, 620, 1290, -620, -5, -620)
@@ -120,5 +119,10 @@ shape = SubResource("RectangleShape2D_ywgp6")
 [node name="FieldRenderer" type="Node2D" parent="."]
 position = Vector2(-512, 128)
 script = ExtResource("2_frndr")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="InventoryMenu" parent="Camera2D" instance=ExtResource("5_wbbl4")]
+visible = false
 
 [connection signal="timeout" from="PhaseTimer" to="." method="_on_phase_timer_timeout"]

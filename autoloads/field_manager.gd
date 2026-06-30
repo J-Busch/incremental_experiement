@@ -16,6 +16,9 @@ const BOULDER_SIZES: Array = [
 	Vector2i(3, 2), Vector2i(2, 3),
 	Vector2i(3, 3), Vector2i(3, 3)
 ]
+const SAPLING_MAX_MATURITY: float = 100.0
+const SAPLING_WATER_RATE: float = 10.0
+
 const BOULDER_HEALTH: Dictionary = {
 	Vector2i(1, 1): 3,
 	Vector2i(2, 1): 5,
@@ -111,6 +114,42 @@ func set_cell(x: int, y: int, data: Dictionary) -> void:
 
 func is_in_bounds(x: int, y: int) -> bool:
 	return x >= 0 and x < GRID_WIDTH and y >= 0 and y < GRID_HEIGHT
+
+func place_item(x: int, y: int, item: StringName) -> bool:
+	var item_def = GameManager.PLACEABLE_ITEMS.get(item)
+	if item_def == null:
+		return false
+	var size: Vector2i = item_def["size"]
+	for dy: int in size.y:
+		for dx: int in size.x:
+			if not is_in_bounds(x + dx, y + dy) or get_cell(x + dx, y + dy)["type"] != &"empty":
+				return false
+	var origin := Vector2i(x, y)
+	for dy: int in size.y:
+		for dx: int in size.x:
+			var is_origin := dx == 0 and dy == 0
+			set_cell(x + dx, y + dy, {
+				"type": item,
+				"state": &"seedling",
+				"progress": 0.0,
+				"owner": origin,
+				"size": size if is_origin else Vector2i(1, 1),
+				"claimed_by": null,
+				"extras": {"maturity": 0.0, "max_maturity": SAPLING_MAX_MATURITY} if is_origin else {}
+			})
+	return true
+
+func water_sapling(x: int, y: int, delta: float) -> void:
+	var cell := get_cell(x, y)
+	var origin: Vector2i = cell["owner"]
+	var oc := get_cell(origin.x, origin.y)
+	if oc["state"] != &"seedling":
+		return
+	oc["extras"]["maturity"] = minf(oc["extras"]["maturity"] + SAPLING_WATER_RATE * delta, oc["extras"]["max_maturity"])
+	oc["progress"] = oc["extras"]["maturity"] / oc["extras"]["max_maturity"]
+	if oc["extras"]["maturity"] >= oc["extras"]["max_maturity"]:
+		oc["state"] = &"mature"
+		set_cell(origin.x, origin.y, oc)
 
 func _make_empty_cell(coords: Vector2i) -> Dictionary:
 	return {
