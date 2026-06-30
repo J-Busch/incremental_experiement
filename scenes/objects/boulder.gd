@@ -11,8 +11,23 @@ const TEXTURES: Dictionary = {
 
 @onready var visual: Sprite2D = $Visual
 @onready var collision_shape: CollisionShape2D = $Area2D/CollisionShape2D
+@onready var progress_bar: ProgressBar = $ProgressBar
+@onready var area: Area2D = $Area2D
 
-func setup(cell_size: Vector2i) -> void:
+var grid_coords: Vector2i
+var _hide_timer: Timer
+
+func _ready() -> void:
+	progress_bar.hide()
+	_hide_timer = Timer.new()
+	_hide_timer.one_shot = true
+	_hide_timer.wait_time = 2.0
+	add_child(_hide_timer)
+	_hide_timer.timeout.connect(func(): progress_bar.hide())
+	area.input_event.connect(_on_area_input_event)
+
+func setup(coords: Vector2i, cell_size: Vector2i) -> void:
+	grid_coords = coords
 	var pixel_size := Vector2(
 		cell_size.x * FieldManager.TILE_SIZE,
 		cell_size.y * FieldManager.TILE_SIZE
@@ -26,6 +41,20 @@ func setup(cell_size: Vector2i) -> void:
 	shape.size = pixel_size
 	collision_shape.shape = shape
 	collision_shape.position = pixel_size / 2.0
+
+	progress_bar.offset_left = 0.0
+	progress_bar.offset_right = pixel_size.x
+	progress_bar.offset_top = -14.0
+	progress_bar.offset_bottom = -2.0
+
+func refresh(cell: Dictionary) -> void:
+	progress_bar.value = cell["progress"] * 100.0
+	progress_bar.show()
+	_hide_timer.start()
+
+func _on_area_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
+	if event.is_action_pressed(&"LEFT_CLICK"):
+		FieldManager.damage_boulder(grid_coords.x, grid_coords.y)
 
 func _make_placeholder(size_px: Vector2) -> ImageTexture:
 	var img := Image.create(int(size_px.x), int(size_px.y), false, Image.FORMAT_RGBA8)

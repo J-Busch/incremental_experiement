@@ -1,9 +1,16 @@
-[gd_scene load_steps=3 format=3 uid="uid://cqp6xodaltva0"]
+[gd_scene load_steps=4 format=3 uid="uid://cqp6xodaltva0"]
 
 [ext_resource type="Script" uid="uid://ccowunxq3kv6g" path="res://scenes/objects/boulder.gd" id="1_gny4g"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bhlh1"]
 size = Vector2(64, 64)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gny4g"]
+bg_color = Color(0.87734634, 4.0670484e-06, 1.92523e-07, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
 
 [node name="Boulder" type="Node2D"]
 script = ExtResource("1_gny4g")
@@ -14,3 +21,11 @@ script = ExtResource("1_gny4g")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource("RectangleShape2D_bhlh1")
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+offset_left = -22.0
+offset_right = 23.0
+offset_bottom = 10.0
+theme_override_styles/fill = SubResource("StyleBoxFlat_gny4g")
+value = 50.0
+show_percentage = false
